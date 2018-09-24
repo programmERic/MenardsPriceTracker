@@ -67,8 +67,8 @@ def get_item_data(conn, ID):
         c.execute(CMD_get_item_price_history.format(item_ID=ID))
         item_price_history = c.fetchall()
 
-        for i in item_price_history:
-            print(i)
+        #for i in item_price_history:
+        #    print(i)
 
         return (ID, item_desc, item_price_history)
     except Exception as e:

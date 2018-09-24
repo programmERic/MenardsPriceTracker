@@ -16,12 +16,14 @@ class MenardsGUI(tk.Tk):
         
         tk.Tk.__init__(self, *args, **kwargs)
 
+        self.geometry('750x750')
+
         #tk.Tk.iconbitmap(self, default="clienticon.ico")
         tk.Tk.wm_title(self, "Menards Price Analyzer")
         
-        container = tk.Frame(self, height=1000, width=1000)
+        container = tk.Frame(self)
         
-        container.pack(side="top", fill=None, expand = False)
+        container.pack(side="top", fill=None, expand=True)
         container.grid_rowconfigure(0, weight=1)
         container.grid_columnconfigure(0, weight=1)
 
@@ -47,6 +49,15 @@ class StartPage(tk.Frame):
 
     def __init__(self, parent, controller):
         tk.Frame.__init__(self,parent)
+
+        p = ttk.Panedwindow(parent, orient='HORIZONTAL')
+        # first pane, which would get widgets gridded into it:
+        item_search = ttk.Labelframe(p, text='Item Search', width=375, height=375)
+        item_history = ttk.Labelframe(p, text='Item Info', width=375, height=375)   # second pane
+        p.add(item_search)
+        p.add(item_history)
+
+
         label = tk.Label(self, text="Menards Price Tracker", font=LARGE_FONT)
         label.pack(pady=10,padx=10)
 
@@ -54,6 +65,7 @@ class StartPage(tk.Frame):
                             command=lambda: controller.show_frame(PageThree))
         button3.pack()
 
+        ttk.Entry(self)
 
 
 class PageThree(tk.Frame):

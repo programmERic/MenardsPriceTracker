@@ -9,8 +9,8 @@ from selenium.webdriver.support.ui import WebDriverWait
 import menards_sql as msq
 
 ## constants used to remove unecessary characters from html content
-SKU = -7
-MODEL = -5
+SKU = 5
+MODEL = 7
 itemPrice = 0
 noDollar = 1
 
@@ -87,12 +87,13 @@ def scour_items_page(driver):
                     if identifier.text.startswith("SKU"):
                         item_ID = identifier.text[SKU:]
                     else:
-                        if identifier.text.isdigit():
-                            item_ID = identifier.text[MODEL:]
-                        else:
-                            print("uh oh, the ID isn't just digits :0")
+                        item_ID = identifier.text[MODEL:]
+                        
                     
                     item_price = i.find_element_by_class_name("priceInfo").text.split()[itemPrice][noDollar:]
+                    if not item_price.isdigit(): #assign -1 if the price is one that requires user to add it to their cart
+                        item_price = -1.0
+
                     print("{} is ${} (ID: {})".format(item_desc, item_price, item_ID))
                     
                     ##insert into DB
@@ -115,7 +116,7 @@ def scour_items_page(driver):
 
 
 def quick_test():
-    item_url = "https://www.menards.com/main/tools-hardware/power-tools-accessories/power-tool-accessories/drill-bits-accessories/c-10079.htm?Spec_ProductType_facet=Twist+Bits"
+    item_url = "https://www.menards.com/main/tools-hardware/power-tools-accessories/power-tool-combo-kits/c-9066.htm"
     driver = webdriver.Chrome(executable_path=Erics_driver_location)
     driver.get(item_url)
     scour_items_page(driver)
@@ -141,7 +142,7 @@ if __name__ == '__main__':
     '''
     
     
-    navigate_Menards_depts()
+    quick_test()
     
     
     print("Finished")
