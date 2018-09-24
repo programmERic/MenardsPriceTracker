@@ -13,6 +13,7 @@ CMD_insert_item_price = "INSERT OR IGNORE INTO Items_Price_History (Item_Unique_
 ## also need to sort on datetime
 CMD_get_item_price_history = "SELECT Date, Item_Price FROM Items_Price_History WHERE Item_Unique_ID = {item_ID} ORDER BY Date DESC;"
 CMD_get_item_info = "SELECT Item_Desc FROM Items WHERE Unique_ID = {item_ID};"
+CMD_get_item_most_recent_price = "SELECT Item_Price FROM Items_Price_History WHERE Item_Unique_ID = {item_ID} ORDER BY Date DESC;"
 
 db_location = 'C:\\sqllite\\Databases\\Menards_Data.db'
 
@@ -23,6 +24,19 @@ def insert_item_desc(conn, ID, desc):
         conn.commit()
     except Exception:
         print('ERROR occurred in: insert_item_desc(conn, ID, desc):')
+    finally:
+        c.close()
+
+def get_item_most_recent_price(conn, ID):
+    '''
+    Returns most recent price recorded for item with parameter ID.
+    '''
+    c = conn.cursor()
+    try:
+        c.execute(CMD_get_item_most_recent_price.format(item_ID=ID))
+        return c.fetchone()
+    except Exception:
+        print('ERROR occurred in: get_item_most_recent_price(conn, ID):')
     finally:
         c.close()
 
@@ -77,7 +91,6 @@ def get_item_data(conn, ID):
         c.close()
 
 def connect_to_sql():
-    print("Connecting to database...")
     with sql.connect(db_location) as connection:
         return connection
 
@@ -101,8 +114,8 @@ if __name__ == '__main__':
     ##item = get_item_data(conn, ID = 1234567)
     #print(item)
 
-    create_fake_data(conn, num_points=50)
+    #create_fake_data(conn, num_points=50)
 
-
+    print(get_item_most_recent_price(conn=conn, ID=1234567))
 
 
