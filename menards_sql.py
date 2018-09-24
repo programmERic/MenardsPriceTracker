@@ -34,7 +34,12 @@ def get_item_most_recent_price(conn, ID):
     c = conn.cursor()
     try:
         c.execute(CMD_get_item_most_recent_price.format(item_ID=ID))
-        return c.fetchone()
+        last_price = c.fetchone()
+        if last_price is None: # make sure there's an existing price
+            return float(-1.0)
+        else:
+            return last_price[0]
+
     except Exception:
         print('ERROR occurred in: get_item_most_recent_price(conn, ID):')
     finally:
@@ -100,11 +105,16 @@ def create_fake_data(conn, num_points):
     insert_item_desc(conn=conn, ID=fake_ID, desc=fake_desc)
 
     # create a week of past days
-    entry_list = [datetime.datetime(2018, 9, 15, 10, 46, 22, 617403) - datetime.timedelta(days=random.uniform(-100, 100)) for x in range(num_points)]
+    entry_list = [datetime.datetime(2018, 9, 15, 10, 46, 22, 617403) + datetime.timedelta(days=x) for x in range(num_points)]
     prev_price = 500.00
     for e in entry_list:
         insert_item_price(conn=conn, ID=fake_ID, price=prev_price, date=e)
         prev_price = round((prev_price + random.uniform(-25.00, 25.0)), 2)
+
+        last_item_price = get_item_most_recent_price(conn=conn, ID=fake_ID)
+        item_price_drop_pct = round(float(100* ((prev_price-last_item_price)/last_item_price)),2)
+        print("{}'s price changed by % {}. It was ${} and is now ${}".format(fake_desc, item_price_drop_pct, last_item_price, prev_price))
+
 
 if __name__ == '__main__':
 
@@ -114,7 +124,7 @@ if __name__ == '__main__':
     ##item = get_item_data(conn, ID = 1234567)
     #print(item)
 
-    #create_fake_data(conn, num_points=50)
+    create_fake_data(conn, num_points=50)
 
     print(get_item_most_recent_price(conn=conn, ID=1234567))
 

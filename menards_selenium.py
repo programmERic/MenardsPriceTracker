@@ -9,7 +9,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 import menards_sql as msq
 
 ## constants used to remove unecessary characters from html content
-SKU = 5
+SKU = 7
 MODEL = 7
 itemPrice = 0
 noDollar = 1
@@ -18,7 +18,7 @@ Erics_driver_location = r'C:/Users/Eric/AppData/Roaming/Microsoft/Windows/Start 
 
 Menards_shop_all_depts_url = 'https://www.menards.com/main/shop-all-departments/c-19384.htm'
 Menards_home_page_url = 'https://www.menards.com/main/home.html'
-
+Menards_example_ideal_item_page = "https://www.menards.com/main/tools-hardware/hand-tools/wrenches-wrench-sets/c-9157.htm"
 
 # must appear exactly how it is spelled out in this list
 Departments_to_look_at = [
@@ -84,15 +84,19 @@ def scour_items_page(driver):
 
                     #determine whether item is designated by SKU or Model
                     identifier = i.find_element_by_class_name("ps-item-sku")
-                    if identifier.text.startswith("SKU"):
+                    if identifier.text.lower().startswith("sku"):
                         item_ID = identifier.text[SKU:]
                     else:
                         item_ID = identifier.text[MODEL:]
                         
                     
                     item_price = i.find_element_by_class_name("priceInfo").text.split()[itemPrice][noDollar:]
-                    if not item_price.isdigit(): #assign -1 if the price is one that requires user to add it to their cart
+                    if not item_price[-3] is '.': #assign -1 if the price is one that requires user to add it to their cart
                         item_price = -1.0
+                    else:
+                        last_item_price = msq.get_item_most_recent_price(conn=menards_db, ID=item_ID)
+                        item_price_drop_pct = round(float(100* ((float(item_price)-last_item_price)/last_item_price)),2)
+                        print("{}'s price decreased by {}. It was ${} and is now ${}".format(item_desc, item_price_drop_pct, last_item_price, item_price))
 
                     print("{} is ${} (ID: {})".format(item_desc, item_price, item_ID))
                     
@@ -116,7 +120,7 @@ def scour_items_page(driver):
 
 
 def quick_test():
-    item_url = "https://www.menards.com/main/tools-hardware/power-tools-accessories/power-tool-combo-kits/c-9066.htm"
+    item_url = Menards_example_ideal_item_page
     driver = webdriver.Chrome(executable_path=Erics_driver_location)
     driver.get(item_url)
     scour_items_page(driver)
