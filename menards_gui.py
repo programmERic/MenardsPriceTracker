@@ -100,7 +100,25 @@ class PageThree(tk.Frame):
         #toolbar.update()
         canvas._tkcanvas.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
         
-        
+def command_line_use():
+    
+    counter = int(1)
+
+    print("Welcome to Menards price scraper")
+    
+    user_input = str()
+    
+    while user_input is not 'exit':
+        user_input = input('{} >> '.format(counter))
+
+        print(user_input)
+        counter += 1
+    
+    print("ok bye")
+    exit()
+
+if __name__ == '__main__':
+    command_line_use()
 
 app = MenardsGUI()
 app.mainloop()
